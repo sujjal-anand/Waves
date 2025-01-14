@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
 import Waves from "../models/Wave";
+import Comments from "../models/Comments";
 const jwtKey= Local.Secret_Key
 
 export const signUp = async (req: any, res: any) => {
@@ -85,8 +86,7 @@ export const login = async (req: any, res: any) => {
 
 
 
-
-  export const inviteFriend = async (req: any, res: any) => {
+export const inviteFriend = async (req: any, res: any) => {
     const { senderfriendId, emails } = req.body; // Accept array of emails
     const senderId = senderfriendId;
   
@@ -161,10 +161,9 @@ export const login = async (req: any, res: any) => {
     }
   };
   
+   
   
-  
-  
-  export const addFriendLogin = async (req: any, res: any) => {
+export const addFriendLogin = async (req: any, res: any) => {
     try {
       // Destructure senderfriendId and receiverfriendId from the request body
       const { senderfriendId, receiverfriendId } = req.user;
@@ -199,9 +198,8 @@ export const login = async (req: any, res: any) => {
   };
   
 
-
   
-  export const addFriendSignup = async (req: any, res: any) => {
+export const addFriendSignup = async (req: any, res: any) => {
     try {
       const { senderfriendId}  = req?.user; // Extracting senderfriendId from the request body
       const { receiverfriendId } = req?.body; // Extracting receiverfriendId from authenticated user (assuming JWT middleware adds this)
@@ -227,9 +225,10 @@ export const login = async (req: any, res: any) => {
       return res.status(500).json({ message: "Internal server error." });
     }
   };
+
   
 
-  export const getUserDetails = async (req: any, res: any) => {
+export const getUserDetails = async (req: any, res: any) => {
     try {
       const { id } = req?.user;
   
@@ -305,9 +304,10 @@ export const login = async (req: any, res: any) => {
       return res.status(500).json({ message: "Server error", error });
     }
   };
+
   
   
-  export const createWave = async (req: any, res: any) => {
+export const createWave = async (req: any, res: any) => {
     try {
       const { image, video } = req?.files ;
       const { text } = req?.body;
@@ -330,7 +330,7 @@ export const login = async (req: any, res: any) => {
   
 
   
-  export const changePassword = async (req: any, res: any) => {
+export const changePassword = async (req: any, res: any) => {
     const { id } = req.user; // Extract user ID from authenticated user
     const { prevPassword, newPassword } = req.body;
   
@@ -364,7 +364,7 @@ export const login = async (req: any, res: any) => {
   
  
   
-  export const updateUser = async (req: any, res: any) => {
+export const updateUser = async (req: any, res: any) => {
     try {
       // Extract user ID and other fields from the request
       const { id } = req.user; // Assuming `req.user` contains the authenticated user's details
@@ -425,8 +425,10 @@ export const login = async (req: any, res: any) => {
       return res.status(500).json({ message: "An error occurred while updating the user", error });
     }
   };
+ 
   
-  export const latestWaves = async (req: any, res: any) => {
+
+export const latestWaves = async (req: any, res: any) => {
     try {
       const waves = await Waves.findAll({
         limit: 6,
@@ -452,3 +454,39 @@ export const login = async (req: any, res: any) => {
       });
     }
   };
+
+ 
+  
+export const addComment = async (req: any, res: any) => {
+    try {
+      const { id } = req.user || {}; // Extract user ID from the token
+      const { waveId, comment } = req.body;
+  
+      // Validate required fields
+      if (!id) {
+        return res.status(401).json({ error: "Unauthorized. User ID not found." });
+      }
+  
+      if (!waveId || !comment) {
+        return res.status(400).json({ error: "Wave ID and comment are required." });
+      }
+  
+      // Create a new comment
+      const response = await Comments.create({ userId: id, waveId, comment });
+  
+      // Send success response
+      return res.status(201).json({
+        message: "Comment added successfully",
+        data: response,
+      });
+    } catch (error:any) {
+      console.error("Error adding comment:", error);
+  
+      // Handle errors
+      return res.status(500).json({
+        error: "An error occurred while adding the comment",
+        details: error.message,
+      });
+    }
+  };
+  

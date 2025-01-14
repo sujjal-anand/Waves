@@ -31,7 +31,7 @@ console.log(data)
   return (
     <div>
           <h2>User Details</h2>
-
+<h2>friends</h2>
   {data?.friends?.map((friend: any) => (
     <p key={friend.id}>
       {friend.firstName} {friend.lastName}
