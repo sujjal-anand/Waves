@@ -8,7 +8,7 @@ const userRoutes = Router();
 
 userRoutes.post("/signUp",signUp)
 userRoutes.post("/login",login)
-userRoutes.post("/inviteFriend",inviteFriend)
+userRoutes.post("/inviteFriend",JWT,inviteFriend)
 userRoutes.post("/addFriendLogin",JWT,addFriendLogin)
 userRoutes.post("/addFriendSignup",JWT,addFriendSignup)
 userRoutes.get("/getUserDetails",JWT,getUserDetails)

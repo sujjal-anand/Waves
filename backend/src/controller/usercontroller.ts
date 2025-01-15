@@ -86,9 +86,10 @@ export const login = async (req: any, res: any) => {
 
 
 
-export const inviteFriend = async (req: any, res: any) => {
-    const { senderfriendId, emails } = req.body; // Accept array of emails
-    const senderId = senderfriendId;
+  export const inviteFriend = async (req: any, res: any) => {
+    console.log(req?.body); // Log the incoming request body
+    const { body } = req; // Accept array of objects with fullname, emails, and message
+    const senderId = req?.user?.id;
   
     const checkEmailExists = async (email: string) => {
       // Find the user by email
@@ -117,14 +118,15 @@ export const inviteFriend = async (req: any, res: any) => {
     };
   
     try {
-      const promises = emails.map(async (email: string) => {
+      const promises = body.map(async (item: { fullname: string; emails: string; message: string }) => {
+        const { emails: email } = item;
         const user = await checkEmailExists(email);
         let token: string;
         let invitationLink: string;
   
         if (user) {
-          await Friends.create({ senderfriendId: senderId, receiverfriendId: user.id });
           // If email exists, include the user's ID in the token
+          await Friends.create({ senderfriendId: senderId, email, receiverfriendId: user.id });
           token = generateToken({ senderfriendId: senderId, email, receiverfriendId: user.id });
           invitationLink = `http://localhost:5173/login?token=${token}`;
         } else {
@@ -133,6 +135,7 @@ export const inviteFriend = async (req: any, res: any) => {
           invitationLink = `http://localhost:5173/?token=${token}`;
         }
   
+        // Send the invitation email
         await sendEmail(
           email,
           "You're Invited by Your Friend!",
@@ -140,7 +143,9 @@ export const inviteFriend = async (req: any, res: any) => {
           <html>
             <body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4;">
               <div style="max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
-                <h1 style="color: #333;">You're Invited!</h1>
+                <h1 style="color: #333;">You're Invited, ${item.fullname}!</h1>
+                <p style="color: #555;">Your friend has shared the following message:</p>
+                <blockquote style="background-color: #f9f9f9; padding: 10px; border-left: 5px solid #007BFF; margin: 10px 0; color: #555;">${item.message}</blockquote>
                 <p style="color: #555;">Here is the invitation link shared by your friend:</p>
                 <a href="${invitationLink}" style="display: inline-block; padding: 10px 20px; color: white; background-color: #007BFF; text-decoration: none; border-radius: 5px; margin-top: 10px;">Accept Invitation</a>
                 <p style="color: #555; margin-top: 20px;">Click the link above to join us and get started!</p>
@@ -161,16 +166,29 @@ export const inviteFriend = async (req: any, res: any) => {
     }
   };
   
+  
    
   
-export const addFriendLogin = async (req: any, res: any) => {
+  export const addFriendLogin = async (req: any, res: any) => {
     try {
-      // Destructure senderfriendId and receiverfriendId from the request body
-      const { senderfriendId, receiverfriendId } = req.user;
+      // Destructure senderfriendId and receiverfriendId from req.user
+      const { senderfriendId, receiverfriendId, email: userEmail } = req?.user;
+  
+      // Destructure email from req.body
+      const { email } = req?.body;
+  
+      // Check if the email matches the logged-in user's email
+      if (userEmail !== email) {
+        return res.status(403).json({
+          message: "Kindly log in with the same email to accept the request",
+        });
+      }
   
       // Validate senderfriendId and receiverfriendId
       if (!senderfriendId || !receiverfriendId) {
-        return res.status(400).json({ message: "Sender ID and Receiver ID are required." });
+        return res.status(400).json({
+          message: "Sender ID and Receiver ID are required.",
+        });
       }
   
       // Update the friend request status to 'Accepted'
@@ -186,16 +204,23 @@ export const addFriendLogin = async (req: any, res: any) => {
   
       // Check if the friend request exists and was updated
       if (updatedRows === 0) {
-        return res.status(404).json({ message: "Friend request not found or already updated." });
+        return res.status(404).json({
+          message: "Friend request not found or already accepted.",
+        });
       }
   
       // Return a success response
-      return res.status(200).json({ message: "Friend request accepted successfully." });
+      return res.status(200).json({
+        message: "Friend request accepted successfully.",
+      });
     } catch (error) {
-      console.error("Error in addFriend:", error);
-      return res.status(500).json({ message: "An error occurred while updating the friend request." });
+      console.error("Error in addFriendLogin:", error);
+      return res.status(500).json({
+        message: "An error occurred while updating the friend request.",
+      });
     }
   };
+  
   
 
   

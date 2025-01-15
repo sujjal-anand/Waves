@@ -6,6 +6,8 @@ interface Config {
     ADD_FRIEND_SIGNUP:string
     GET_USER_DETAILS:string;
     SECRET_KEY:string
+    LATEST_WAVES:string
+    INVITE_FRIEND:string
   }
   
   export const Local: Config = {
@@ -15,6 +17,8 @@ interface Config {
     ADD_FRIEND_LOGIN:import.meta.env.VITE_ADD_FRIEND_LOGIN,
     ADD_FRIEND_SIGNUP:import.meta.env.VITE_ADD_FRIEND_SIGNUP,
     GET_USER_DETAILS:import.meta.env.VITE_GET_USER_DETAILS,
+    LATEST_WAVES:import.meta.env.VITE_LATEST_WAVES,
+    INVITE_FRIEND:import.meta.env.VITE_INVITE_FRIEND,
     SECRET_KEY:import.meta.env.VITE_SECRET_KEY
   };
   
