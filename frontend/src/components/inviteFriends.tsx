@@ -16,9 +16,7 @@ const InviteFriends = () => {
 
   const validationSchema = Yup.object({
     fullname: Yup.string().required("Fullname is required"),
-    emails: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
+    emails: Yup.string().email("Invalid email address").required("Email is required"),
     message: Yup.string().required("Message is required"),
   });
 
@@ -35,7 +33,6 @@ const InviteFriends = () => {
   const handleSubmitAll = async () => {
     const token = localStorage.getItem("token");
     const allData = forms.map((form) => form.data);
-
     if (token) {
       try {
         const response = await api.post(
@@ -53,180 +50,224 @@ const InviteFriends = () => {
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "'Arial', sans-serif" }}>
-      <h2 style={{ fontSize: "24px", marginBottom: "10px" }}>Friends</h2>
-      <p style={{ fontSize: "16px", color: "#555" }}>
-        Invite some friends Jasmine, show them your Waves and let's see what
-        they can do!
+    <div style={{ 
+      padding: "20px", 
+      fontFamily: "'Arial', sans-serif",
+      backgroundColor: "#f5f5f5",
+      minHeight: "100vh"
+    }}>
+      {/* Header Section */}
+      <div style={{ 
+        display: "flex", 
+        alignItems: "center", 
+        marginBottom: "15px" 
+      }}>
+        <span style={{ 
+          fontSize: "24px", 
+          marginRight: "10px",
+          cursor: "pointer",
+          color: "#333" 
+        }}>
+          ←
+        </span>
+        <h2 style={{ fontSize: "24px", margin: 0, color: "#333" }}>Friends</h2>
+      </div>
+
+      <p style={{ 
+        fontSize: "16px", 
+        color: "#666",
+        marginBottom: "20px" 
+      }}>
+        Invites some friends Jasmine, show them your Waves and let's see what they can do!
       </p>
-      {forms.map((form, index) => (
-        <div
-          key={form.id}
-          style={{
-            marginBottom: "20px",
-            backgroundColor: "#fff",
-            border: "1px solid #ccc",
-            borderRadius: "8px",
-            padding: "20px",
-            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-          }}
-        >
-          <h4
+
+      {/* Main White Container */}
+      <div style={{
+        backgroundColor: "white",
+        borderRadius: "12px",
+        padding: "24px",
+        boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
+      }}>
+        {/* Forms Container */}
+        <div style={{ marginBottom: "20px" }}>
+          {forms.map((form, index) => (
+            <div
+              key={form.id}
+              style={{
+                marginBottom: index === forms.length - 1 ? "0" : "24px",
+              }}
+            >
+              <h4 style={{
+                fontSize: "16px",
+                fontWeight: "500",
+                color: "#666",
+                marginBottom: "16px"
+              }}>
+                Friend #{index + 1}
+              </h4>
+              <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={(values) => handleFormChange(index, values)}
+              >
+                {({ handleChange, handleBlur, values }) => (
+                  <Form>
+                    <div style={{ 
+                      display: "flex", 
+                      gap: "20px", 
+                      marginBottom: "16px" 
+                    }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{
+                          display: "block",
+                          marginBottom: "8px",
+                          color: "#555",
+                          fontSize: "14px"
+                        }}>
+                          Full Name
+                        </label>
+                        <Field
+                          type="text"
+                          name="fullname"
+                          placeholder="Full Name"
+                          onChange={(e:any) => {
+                            handleChange(e);
+                            handleFormChange(index, { ...values, fullname: e.target.value });
+                          }}
+                          onBlur={handleBlur}
+                          style={{
+                            width: "100%",
+                            padding: "10px 12px",
+                            borderRadius: "8px",
+                            border: "1px solid #ddd",
+                            fontSize: "14px",
+                          }}
+                        />
+                        <ErrorMessage name="fullname" component="div"  />
+                      </div>
+
+                      <div style={{ flex: 1 }}>
+                        <label style={{
+                          display: "block",
+                          marginBottom: "8px",
+                          color: "#555",
+                          fontSize: "14px"
+                        }}>
+                          Email Address
+                        </label>
+                        <Field
+                          type="email"
+                          name="emails"
+                          placeholder="Email"
+                          onChange={(e:any) => {
+                            handleChange(e);
+                            handleFormChange(index, { ...values, emails: e.target.value });
+                          }}
+                          onBlur={handleBlur}
+                          style={{
+                            width: "100%",
+                            padding: "10px 12px",
+                            borderRadius: "8px",
+                            border: "1px solid #ddd",
+                            fontSize: "14px",
+                          }}
+                        />
+                        <ErrorMessage name="emails" component="div"  />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={{
+                        display: "block",
+                        marginBottom: "8px",
+                        color: "#555",
+                        fontSize: "14px"
+                      }}>
+                        Message
+                      </label>
+                      <Field
+                        as="textarea"
+                        name="message"
+                        placeholder="Message"
+                        onChange={(e:any) => {
+                          handleChange(e);
+                          handleFormChange(index, { ...values, message: e.target.value });
+                        }}
+                        onBlur={handleBlur}
+                        style={{
+                          width: "100%",
+                          padding: "10px 12px",
+                          borderRadius: "8px",
+                          border: "1px solid #ddd",
+                          fontSize: "14px",
+                          minHeight: "100px",
+                          resize: "vertical"
+                        }}
+                      />
+                      <ErrorMessage name="message" component="div"  />
+                    </div>
+                  </Form>
+                )}
+              </Formik>
+            </div>
+          ))}
+        </div>
+
+        {/* Buttons Container */}
+        <div style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: "16px",
+          borderTop: "1px solid #eee",
+          paddingTop: "20px",
+          marginTop: "20px"
+        }}>
+          <button
+            type="button"
+            onClick={handleAddForm}
             style={{
-              marginBottom: "10px",
-              fontSize: "18px",
-              fontWeight: "600",
-              color: "#333",
+              color: "#666",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              fontSize: "14px",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              padding: "0"
             }}
           >
-            Friend #{index + 1}
-          </h4>
-          <Formik
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-            onSubmit={(values) => handleFormChange(index, values)}
+            + Add More
+          </button>
+          
+          <button
+            type="button"
+            onClick={handleSubmitAll}
+            style={{
+              backgroundColor: "#475569",
+              color: "#fff",
+              border: "none",
+              borderRadius: "8px",
+              padding: "12px 32px",
+              fontSize: "16px",
+              cursor: "pointer",
+              fontWeight: "500"
+            }}
           >
-            {({ handleChange, handleBlur, values }) => (
-              <Form>
-                <div style={{ display: "flex", gap: "20px", marginBottom: "15px" }}>
-                  <div style={{ flex: 1 }}>
-                    <label
-                      htmlFor={`fullname-${index}`}
-                      style={{
-                        display: "block",
-                        marginBottom: "5px",
-                        fontSize: "14px",
-                        color: "#555",
-                      }}
-                    >
-                      Full Name
-                    </label>
-                    <Field
-                      type="text"
-                      id={`fullname-${index}`}
-                      name="fullname"
-                      placeholder="Full Name"
-                      onChange={(e:any) => {
-                        handleChange(e);
-                        handleFormChange(index, { ...values, fullname: e.target.value });
-                      }}
-                      onBlur={handleBlur}
-                      style={{
-                        width: "100%",
-                        padding: "10px",
-                        borderRadius: "4px",
-                        border: "1px solid #ccc",
-                        fontSize: "14px",
-                      }}
-                    />
-                    <ErrorMessage name="fullname" component="div"  />
-                  </div>
-
-                  <div style={{ flex: 1 }}>
-                    <label
-                      htmlFor={`emails-${index}`}
-                      style={{
-                        display: "block",
-                        marginBottom: "5px",
-                        fontSize: "14px",
-                        color: "#555",
-                      }}
-                    >
-                      Email Address
-                    </label>
-                    <Field
-                      type="email"
-                      id={`emails-${index}`}
-                      name="emails"
-                      placeholder="Email"
-                      onChange={(e:any) => {
-                        handleChange(e);
-                        handleFormChange(index, { ...values, emails: e.target.value });
-                      }}
-                      onBlur={handleBlur}
-                      style={{
-                        width: "100%",
-                        padding: "10px",
-                        borderRadius: "4px",
-                        border: "1px solid #ccc",
-                        fontSize: "14px",
-                      }}
-                    />
-                    <ErrorMessage name="emails" component="div" />
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: "15px" }}>
-                  <label
-                    htmlFor={`message-${index}`}
-                    style={{
-                      display: "block",
-                      marginBottom: "5px",
-                      fontSize: "14px",
-                      color: "#555",
-                    }}
-                  >
-                    Message
-                  </label>
-                  <Field
-                    as="textarea"
-                    id={`message-${index}`}
-                    name="message"
-                    placeholder="Message"
-                    onChange={(e:any) => {
-                      handleChange(e);
-                      handleFormChange(index, { ...values, message: e.target.value });
-                    }}
-                    onBlur={handleBlur}
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "4px",
-                      border: "1px solid #ccc",
-                      fontSize: "14px",
-                      minHeight: "80px",
-                    }}
-                  />
-                  <ErrorMessage name="message" component="div" />
-                </div>
-              </Form>
-            )}
-          </Formik>
+            Friends
+          </button>
         </div>
-      ))}
+      </div>
 
-      <button
-        type="button"
-        onClick={handleAddForm}
-        style={{
-          display: "inline-block",
-          marginTop: "10px",
-          color: "#007bff",
-          cursor: "pointer",
-          border: "none",
-          background: "none",
-          fontSize: "14px",
-        }}
-      >
-        + Add More
-      </button>
-      <br />
-      <button
-        type="button"
-        onClick={handleSubmitAll}
-        style={{
-          marginTop: "20px",
-          backgroundColor: "#007bff",
-          color: "#fff",
-          border: "none",
-          borderRadius: "4px",
-          padding: "10px 20px",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
-      >
-        Friends
-      </button>
+      {/* Footer */}
+      <div style={{
+        textAlign: "center",
+        marginTop: "40px",
+        color: "#666",
+        fontSize: "14px"
+      }}>
+        © 2023 DR. Paliq. All rights reserved.
+      </div>
     </div>
   );
 };
