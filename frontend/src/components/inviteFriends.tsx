@@ -6,7 +6,7 @@ import { Local } from "../environment/env";
 import { createAuthHeaders } from "../utils/token";
 
 const InviteFriends = () => {
-  const [forms, setForms] = useState([{ id: Date.now(), data: {} }]);
+  const [forms, setForms] = useState([{ id: Date.now(), data: {}, isValid: false }]);
 
   const initialValues = {
     fullname: "",
@@ -21,18 +21,27 @@ const InviteFriends = () => {
   });
 
   const handleAddForm = () => {
-    setForms([...forms, { id: Date.now(), data: {} }]);
+    setForms([...forms, { id: Date.now(), data: {}, isValid: false }]);
   };
 
-  const handleFormChange = (index:any, values:any) => {
+  const handleFormChange = (index: number, values: any, isValid: boolean) => {
     const updatedForms = [...forms];
-    updatedForms[index].data = values;
+    updatedForms[index] = { ...updatedForms[index], data: values, isValid };
     setForms(updatedForms);
   };
 
   const handleSubmitAll = async () => {
     const token = localStorage.getItem("token");
+
+    // Check if all forms are valid
+    const allValid = forms.every((form) => form.isValid);
+    if (!allValid) {
+      alert("Please fill out all forms correctly before submitting.");
+      return;
+    }
+
     const allData = forms.map((form) => form.data);
+
     if (token) {
       try {
         const response = await api.post(
@@ -41,7 +50,7 @@ const InviteFriends = () => {
           createAuthHeaders(token)
         );
         console.log("Response:", response.data);
-      } catch (error:any) {
+      } catch (error: any) {
         console.error("Error:", error.response?.data || error.message);
       }
     } else {
@@ -50,91 +59,43 @@ const InviteFriends = () => {
   };
 
   return (
-    <div style={{ 
-      padding: "20px", 
-      fontFamily: "'Arial', sans-serif",
-      backgroundColor: "#f5f5f5",
-      minHeight: "100vh"
-    }}>
+    <div style={{ padding: "20px", fontFamily: "'Arial', sans-serif", backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
       {/* Header Section */}
-      <div style={{ 
-        display: "flex", 
-        alignItems: "center", 
-        marginBottom: "15px" 
-      }}>
-        <span style={{ 
-          fontSize: "24px", 
-          marginRight: "10px",
-          cursor: "pointer",
-          color: "#333" 
-        }}>
-          ←
-        </span>
+      <div style={{ display: "flex", alignItems: "center", marginBottom: "15px" }}>
+        <span style={{ fontSize: "24px", marginRight: "10px", cursor: "pointer", color: "#333" }}>←</span>
         <h2 style={{ fontSize: "24px", margin: 0, color: "#333" }}>Friends</h2>
       </div>
 
-      <p style={{ 
-        fontSize: "16px", 
-        color: "#666",
-        marginBottom: "20px" 
-      }}>
+      <p style={{ fontSize: "16px", color: "#666", marginBottom: "20px" }}>
         Invites some friends Jasmine, show them your Waves and let's see what they can do!
       </p>
 
       {/* Main White Container */}
-      <div style={{
-        backgroundColor: "white",
-        borderRadius: "12px",
-        padding: "24px",
-        boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
-      }}>
+      <div style={{ backgroundColor: "white", borderRadius: "12px", padding: "24px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}>
         {/* Forms Container */}
         <div style={{ marginBottom: "20px" }}>
           {forms.map((form, index) => (
-            <div
-              key={form.id}
-              style={{
-                marginBottom: index === forms.length - 1 ? "0" : "24px",
-              }}
-            >
-              <h4 style={{
-                fontSize: "16px",
-                fontWeight: "500",
-                color: "#666",
-                marginBottom: "16px"
-              }}>
-                Friend #{index + 1}
-              </h4>
+            <div key={form.id} style={{ marginBottom: index === forms.length - 1 ? "0" : "24px" }}>
+              <h4 style={{ fontSize: "16px", fontWeight: "500", color: "#666", marginBottom: "16px" }}>Friend #{index + 1}</h4>
               <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
-                onSubmit={(values) => handleFormChange(index, values)}
+                validateOnChange
+                validateOnBlur
+                onSubmit={(values, { setSubmitting }) => {
+                  setSubmitting(false);
+                  handleFormChange(index, values, true);
+                }}
               >
-                {({ handleChange, handleBlur, values }) => (
-                  <Form>
-                    <div style={{ 
-                      display: "flex", 
-                      gap: "20px", 
-                      marginBottom: "16px" 
-                    }}>
+                {({ handleSubmit, handleChange, handleBlur, values, errors }) => (
+                  <Form onBlur={() => handleFormChange(index, values, Object.keys(errors).length === 0)}>
+                    <div style={{ display: "flex", gap: "20px", marginBottom: "16px" }}>
                       <div style={{ flex: 1 }}>
-                        <label style={{
-                          display: "block",
-                          marginBottom: "8px",
-                          color: "#555",
-                          fontSize: "14px"
-                        }}>
-                          Full Name
-                        </label>
+                        <label style={{ display: "block", marginBottom: "8px", color: "#555", fontSize: "14px" }}>Full Name</label>
                         <Field
                           type="text"
                           name="fullname"
                           placeholder="Full Name"
-                          onChange={(e:any) => {
-                            handleChange(e);
-                            handleFormChange(index, { ...values, fullname: e.target.value });
-                          }}
-                          onBlur={handleBlur}
                           style={{
                             width: "100%",
                             padding: "10px 12px",
@@ -147,23 +108,11 @@ const InviteFriends = () => {
                       </div>
 
                       <div style={{ flex: 1 }}>
-                        <label style={{
-                          display: "block",
-                          marginBottom: "8px",
-                          color: "#555",
-                          fontSize: "14px"
-                        }}>
-                          Email Address
-                        </label>
+                        <label style={{ display: "block", marginBottom: "8px", color: "#555", fontSize: "14px" }}>Email Address</label>
                         <Field
                           type="email"
                           name="emails"
                           placeholder="Email"
-                          onChange={(e:any) => {
-                            handleChange(e);
-                            handleFormChange(index, { ...values, emails: e.target.value });
-                          }}
-                          onBlur={handleBlur}
                           style={{
                             width: "100%",
                             padding: "10px 12px",
@@ -172,28 +121,16 @@ const InviteFriends = () => {
                             fontSize: "14px",
                           }}
                         />
-                        <ErrorMessage name="emails" component="div"  />
+                        <ErrorMessage name="emails" component="div" />
                       </div>
                     </div>
 
                     <div>
-                      <label style={{
-                        display: "block",
-                        marginBottom: "8px",
-                        color: "#555",
-                        fontSize: "14px"
-                      }}>
-                        Message
-                      </label>
+                      <label style={{ display: "block", marginBottom: "8px", color: "#555", fontSize: "14px" }}>Message</label>
                       <Field
                         as="textarea"
                         name="message"
                         placeholder="Message"
-                        onChange={(e:any) => {
-                          handleChange(e);
-                          handleFormChange(index, { ...values, message: e.target.value });
-                        }}
-                        onBlur={handleBlur}
                         style={{
                           width: "100%",
                           padding: "10px 12px",
@@ -201,10 +138,10 @@ const InviteFriends = () => {
                           border: "1px solid #ddd",
                           fontSize: "14px",
                           minHeight: "100px",
-                          resize: "vertical"
+                          resize: "vertical",
                         }}
                       />
-                      <ErrorMessage name="message" component="div"  />
+                      <ErrorMessage name="message" component="div" />
                     </div>
                   </Form>
                 )}
@@ -214,14 +151,7 @@ const InviteFriends = () => {
         </div>
 
         {/* Buttons Container */}
-        <div style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: "16px",
-          borderTop: "1px solid #eee",
-          paddingTop: "20px",
-          marginTop: "20px"
-        }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "16px", borderTop: "1px solid #eee", paddingTop: "20px", marginTop: "20px" }}>
           <button
             type="button"
             onClick={handleAddForm}
@@ -234,12 +164,12 @@ const InviteFriends = () => {
               display: "flex",
               alignItems: "center",
               gap: "4px",
-              padding: "0"
+              padding: "0",
             }}
           >
             + Add More
           </button>
-          
+
           <button
             type="button"
             onClick={handleSubmitAll}
@@ -251,7 +181,7 @@ const InviteFriends = () => {
               padding: "12px 32px",
               fontSize: "16px",
               cursor: "pointer",
-              fontWeight: "500"
+              fontWeight: "500",
             }}
           >
             Friends
@@ -260,12 +190,7 @@ const InviteFriends = () => {
       </div>
 
       {/* Footer */}
-      <div style={{
-        textAlign: "center",
-        marginTop: "40px",
-        color: "#666",
-        fontSize: "14px"
-      }}>
+      <div style={{ textAlign: "center", marginTop: "40px", color: "#666", fontSize: "14px" }}>
         © 2023 DR. Paliq. All rights reserved.
       </div>
     </div>
