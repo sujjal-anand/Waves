@@ -5,7 +5,7 @@ import './App.css';
 import Signup from './components/Signup';
 import Login from './components/Login';
 // import Apps from './components/App';
-import Sidebar2 from './components/SideBar2';
+import Sidebar2 from './components/Outline';
 import Dashboard from './components/Dashboard';
 import Myprofile from './components/Myprofile';
 import Friends from './components/Friends';

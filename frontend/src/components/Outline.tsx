@@ -1,9 +1,24 @@
-import React from "react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import React, {useEffect} from "react";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import "../styling/sidebar2.css"; // Optional for additional styles
 
-const Sidebar2: React.FC = () => {
+const Outline: React.FC = () => {
+  
+  const navigate = useNavigate();
+  useEffect(()=>{
+      if(!localStorage.getItem('token')){
+        navigate('/login');
+      }
+    },[]);
+
+  const Logout = () => {  
+      if (localStorage.getItem('token')) {
+          localStorage.clear();
+          navigate('/login');
+      }
+  }
+
     const getGreeting = () => {
         const hours = new Date().getHours();
         if (hours < 12) return "Good Morning";
@@ -15,7 +30,6 @@ const Sidebar2: React.FC = () => {
     <div className="d-flex vh-100">
       {/* Sidebar */}
       <div className="cmn-bg text-white d-flex flex-column p-3" style={{ width: "250px", height:'111%' }}>
-
         <div className="mb-4 ms-5">
             <svg width="81" height="73" viewBox="0 0 81 73" fill="none" className="mt-3" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_1418_393)">
@@ -53,7 +67,7 @@ const Sidebar2: React.FC = () => {
           </NavLink>
 
           <NavLink
-            to="/app/myProfile"
+            to="/app/profile"
             className={({ isActive }) =>
               `nav-link text-white py-2 d-flex mb-2 ${isActive ? "active-link" : ""}`
             }
@@ -126,7 +140,9 @@ const Sidebar2: React.FC = () => {
 
         <div className="mt-auto mb-auto text-center">
 
-            <button className="btn text-light d-flex ms-4 ">
+            <button className="btn text-light d-flex ms-4 " onClick={()=>{
+              Logout();
+              }} >
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" className="me-3" >
                     <path d="M1.00034 18.1761C1.01115 18.5609 1.09919 18.9396 1.25923 19.2898C1.41926 19.6399 1.64803 19.9543 1.93195 20.2143C2.21586 20.4743 2.54913 20.6746 2.91195 20.8033C3.27478 20.9319 3.65977 20.9864 4.04405 20.9634C6.44446 20.9768 8.84487 20.9634 11.2453 20.9634C11.3931 20.9634 11.5349 20.9047 11.6395 20.8001C11.744 20.6956 11.8027 20.5538 11.8027 20.4059C11.8027 20.2581 11.744 20.1163 11.6395 20.0118C11.5349 19.9072 11.3931 19.8485 11.2453 19.8485C8.79247 19.8485 6.33966 19.8842 3.88685 19.8485C2.65264 19.8306 2.11525 18.903 2.11525 17.7993V3.9041C2.10664 3.5532 2.20537 3.20803 2.39823 2.91476C2.59109 2.62148 2.86889 2.39407 3.19449 2.26295C3.57942 2.1579 3.97994 2.12204 4.37741 2.15703H11.2453C11.3931 2.15703 11.5349 2.0983 11.6395 1.99376C11.744 1.88921 11.8027 1.74742 11.8027 1.59958C11.8027 1.45173 11.744 1.30994 11.6395 1.20539C11.5349 1.10085 11.3931 1.04212 11.2453 1.04212C8.76571 1.04212 6.26719 0.947351 3.78985 1.04212C3.41048 1.05171 3.0368 1.13666 2.69057 1.29202C2.34433 1.44738 2.03245 1.67004 1.77307 1.94706C1.51369 2.22408 1.31199 2.54991 1.17971 2.90561C1.04744 3.2613 0.987221 3.63975 1.00257 4.01894L1.00034 18.1761Z" fill="white" stroke="white" stroke-width="0.5"/>
                     <path d="M20.8367 10.6114C20.9309 10.7027 20.986 10.827 20.9905 10.9581C20.9905 10.9748 20.9905 10.9893 20.9972 11.0061C21.0039 11.0228 20.9972 11.0362 20.9905 11.0518C20.9861 11.1832 20.9309 11.3079 20.8367 11.3996L16.7461 15.4902C16.6409 15.5918 16.5001 15.648 16.3539 15.6467C16.2078 15.6454 16.068 15.5868 15.9646 15.4834C15.8613 15.3801 15.8026 15.2403 15.8014 15.0941C15.8001 14.9479 15.8563 14.8071 15.9578 14.702L19.0963 11.5624H7.1199C6.97206 11.5624 6.83026 11.5037 6.72572 11.3991C6.62118 11.2946 6.56244 11.1528 6.56244 11.0049C6.56244 10.8571 6.62118 10.7153 6.72572 10.6108C6.83026 10.5062 6.97206 10.4475 7.1199 10.4475H19.0963L15.9578 7.30789C15.8563 7.20275 15.8001 7.06193 15.8014 6.91577C15.8026 6.76961 15.8613 6.62979 15.9646 6.52643C16.068 6.42308 16.2078 6.36445 16.3539 6.36318C16.5001 6.36191 16.6409 6.4181 16.7461 6.51964L20.8367 10.6114Z" fill="white" stroke="white" stroke-width="0.5"/>
@@ -144,7 +160,7 @@ const Sidebar2: React.FC = () => {
         {/* NavBar */}
         <div className="d-flex justify-content-end align-items-center p-3 bg-white shadow-lg">
           <img
-            src=""
+            src="https://api.dicebear.com/5.x/initials/svg?seed=Anurag Sharda"
             alt="User Profile"
             className="rounded-circle border"
             style={{ width: "40px", height: "40px" }}
@@ -157,17 +173,31 @@ const Sidebar2: React.FC = () => {
           </div>
           
           <ul className="dropdown-menu my-2">
-            <li><Link className="dropdown-item" to="/app/profile">My Profile</Link></li>
-            <li><Link className="dropdown-item" to="/app/preferences">Preferences</Link></li>
-            <li><Link className="dropdown-item" to="/app/friends">Friends</Link></li>
-            <li><Link className="dropdown-item" to="/app/create-waves">Create Waves</Link></li>
-            <li><Link className="dropdown-item" to="/app/change-password">Change Password</Link></li>
-            <li><Link className="dropdown-item" to="/app/logout">Log Out</Link></li>
+            <li><Link className="dropdown-item cmn-clr " to="/app/profile">My Profile</Link></li>
+            <li><Link className="dropdown-item text-secondary " to="/app/preferences">Preferences</Link></li>
+            <li><Link className="dropdown-item text-secondary" to="/app/friends">Friends</Link></li>
+            <li><Link className="dropdown-item text-secondary" to="/app/create-waves">Create Waves</Link></li>
+            <li><Link className="dropdown-item text-secondary" to="/app/change-password">Change Password</Link></li>
+            <li><Link className="dropdown-item text-secondary" to="#" onClick={()=>{Logout();}} >Log Out</Link></li>
         </ul>
         </div>
-        <div className="p-4 bg-secondary-subtle h-100 ">
-          <h5> <Outlet /> </h5>
+        <div className="pt-2 h-100 bg-secondary-subtle rounded "> {/* Add padding-top to account for fixed navbar */}
+          <div className="overflow-auto h-100 pb-5"> {/* Add padding-bottom to account for footer */}
+            <div className="p-4">
+              <Outlet />
+            </div>
+          </div>
         </div>
+
+        <div className="position-fixed bottom-0 start-0 end-0 foot bg-secondary-subtle border-top" 
+     style={{ width: "83%", marginLeft: "250px", overflowX: "auto", whiteSpace: "nowrap" }}>
+  <p className="text-center text-secondary py-0 mb-0 small">
+    &copy; 2023 DR. Palig. All rights reserved.
+  </p>
+</div>
+
+
+
       </div>
 
     </div>
@@ -175,4 +205,4 @@ const Sidebar2: React.FC = () => {
   );
 };
 
-export default Sidebar2;
+export default Outline;

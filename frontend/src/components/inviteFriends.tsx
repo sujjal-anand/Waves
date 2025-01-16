@@ -4,9 +4,10 @@ import * as Yup from "yup";
 import api from "../api/axiosInstance";
 import { Local } from "../environment/env";
 import { createAuthHeaders } from "../utils/token";
+import { toast } from "react-toastify";
 
 const InviteFriends = () => {
-  const [forms, setForms] = useState([{ id: Date.now(), data: {}, isValid: false }]);
+  const [forms, setForms] = useState([{ id: Date.now(), values: {}, isValid: false }]);
 
   const initialValues = {
     fullname: "",
@@ -21,12 +22,12 @@ const InviteFriends = () => {
   });
 
   const handleAddForm = () => {
-    setForms([...forms, { id: Date.now(), data: {}, isValid: false }]);
+    setForms([...forms, { id: Date.now(), values: {}, isValid: false }]);
   };
 
   const handleFormChange = (index: number, values: any, isValid: boolean) => {
     const updatedForms = [...forms];
-    updatedForms[index] = { ...updatedForms[index], data: values, isValid };
+    updatedForms[index] = { ...updatedForms[index], values, isValid };
     setForms(updatedForms);
   };
 
@@ -36,11 +37,11 @@ const InviteFriends = () => {
     // Check if all forms are valid
     const allValid = forms.every((form) => form.isValid);
     if (!allValid) {
-      alert("Please fill out all forms correctly before submitting.");
+      toast.error("Please fill out all forms correctly before submitting.");
       return;
     }
 
-    const allData = forms.map((form) => form.data);
+    const allData = forms.map((form) => form.values);
 
     if (token) {
       try {
@@ -78,13 +79,13 @@ const InviteFriends = () => {
             <div key={form.id} style={{ marginBottom: index === forms.length - 1 ? "0" : "24px" }}>
               <h4 style={{ fontSize: "16px", fontWeight: "500", color: "#666", marginBottom: "16px" }}>Friend #{index + 1}</h4>
               <Formik
-                initialValues={initialValues}
+                initialValues={form.values}
                 validationSchema={validationSchema}
                 validateOnChange
                 validateOnBlur
                 onSubmit={(values, { setSubmitting }) => {
                   setSubmitting(false);
-                  handleFormChange(index, values, true);
+                  handleFormChange(index, values, true); // Update form data when submitted
                 }}
               >
                 {({ handleSubmit, handleChange, handleBlur, values, errors }) => (
@@ -104,7 +105,7 @@ const InviteFriends = () => {
                             fontSize: "14px",
                           }}
                         />
-                        <ErrorMessage name="fullname" component="div"  />
+                        <ErrorMessage name="fullname" component="div" />
                       </div>
 
                       <div style={{ flex: 1 }}>
@@ -184,17 +185,17 @@ const InviteFriends = () => {
               fontWeight: "500",
             }}
           >
-            Friends
+            Invite Friends
           </button>
         </div>
       </div>
 
-      {/* Footer */}
-      <div style={{ textAlign: "center", marginTop: "40px", color: "#666", fontSize: "14px" }}>
-        © 2023 DR. Paliq. All rights reserved.
-      </div>
+    
     </div>
   );
 };
 
 export default InviteFriends;
+
+
+InviteFriends
