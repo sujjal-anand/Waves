@@ -109,7 +109,7 @@ const Outline: React.FC = () => {
           </NavLink>
 
           <NavLink
-            to="/app/create-waves"
+            to="/app/createWave"
             className={({ isActive }) =>
               `nav-link text-white py-2 d-flex mb-2 ${isActive ? "active-link" : ""}`
             }
@@ -123,7 +123,7 @@ const Outline: React.FC = () => {
           </NavLink>
 
           <NavLink
-            to="/app/change-password"
+            to="/app/changePassword"
             className={({ isActive }) =>
               `nav-link text-white py-2 d-flex mb-2 ${isActive ? "active-link" : ""}`
             }
@@ -160,7 +160,7 @@ const Outline: React.FC = () => {
         {/* NavBar */}
         <div className="d-flex justify-content-end align-items-center p-3 bg-white shadow-lg">
           <img
-            src="https://api.dicebear.com/5.x/initials/svg?seed=Anurag Sharda"
+            src="https://api.dicebear.com/5.x/initials/svg?seed=Sujjal Anand"
             alt="User Profile"
             className="rounded-circle border"
             style={{ width: "40px", height: "40px" }}
@@ -176,7 +176,7 @@ const Outline: React.FC = () => {
             <li><Link className="dropdown-item cmn-clr " to="/app/profile">My Profile</Link></li>
             <li><Link className="dropdown-item text-secondary " to="/app/preferences">Preferences</Link></li>
             <li><Link className="dropdown-item text-secondary" to="/app/friends">Friends</Link></li>
-            <li><Link className="dropdown-item text-secondary" to="/app/create-waves">Create Waves</Link></li>
+            <li><Link className="dropdown-item text-secondary" to="/app/createWave">Create Waves</Link></li>
             <li><Link className="dropdown-item text-secondary" to="/app/change-password">Change Password</Link></li>
             <li><Link className="dropdown-item text-secondary" to="#" onClick={()=>{Logout();}} >Log Out</Link></li>
         </ul>

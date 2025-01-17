@@ -9,7 +9,9 @@ import Sidebar2 from './components/Outline';
 import Dashboard from './components/Dashboard';
 import Myprofile from './components/Myprofile';
 import Friends from './components/Friends';
-import InviteFriends from './components/inviteFriends';
+import Createwave from './components/Createwave';
+import Invitefriends from './components/Invitefriends';
+import Changepassword from './components/Changepassword';
 
 const  App:react.FC = () => {
   return (
@@ -22,8 +24,9 @@ const  App:react.FC = () => {
 <Route path="dashboard" element={<Dashboard/>}/>
 <Route path="myProfile" element={<Myprofile/>}/>
 <Route path="friends" element={<Friends/>}/>
-<Route path="inviteFriends" element={<InviteFriends/>}/>
-
+<Route path="inviteFriends" element={<Invitefriends/>}/>
+<Route path="createWave" element={<Createwave/>}/>
+<Route path="changePassword" element={<Changepassword/>}/>
         </Route>
 </Routes>
 </BrowserRouter>

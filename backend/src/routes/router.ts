@@ -12,10 +12,12 @@ userRoutes.post("/inviteFriend",JWT,inviteFriend)
 userRoutes.post("/addFriendLogin",JWT,addFriendLogin)
 userRoutes.post("/addFriendSignup",JWT,addFriendSignup)
 userRoutes.get("/getUserDetails",JWT,getUserDetails)
-userRoutes.post('/createWave', 
-    upload.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }]), JWT, // Accepts one video file
-    createWave // The controller function
-  );
+userRoutes.post(
+  "/createWave",
+  upload.single("media"),
+  JWT,
+ createWave
+);
   userRoutes.put("/changePassword",JWT,changePassword)
   userRoutes.put("/updateUser",upload.single("profilePhoto"),JWT,updateUser)
   export default userRoutes;

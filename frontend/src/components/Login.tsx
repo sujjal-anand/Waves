@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import image from "../Assets/signup.png";
@@ -7,16 +7,18 @@ import { Local } from '../environment/env';
 import { toast } from 'react-toastify';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createAuthHeaders } from '../utils/token';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import the icons
 
 const Login = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token'); // Extract token from URL
-console.log("<?><",token)
+  const [passwordVisible, setPasswordVisible] = useState(false); // State for password visibility
+
   const verifyToken = async () => {
     if (token) {
       try {
-        const response = await api.post(`${Local.ADD_FRIEND_LOGIN}`,{data:""}, createAuthHeaders(token));
+        const response = await api.post(`${Local.ADD_FRIEND_LOGIN}`, { data: "" }, createAuthHeaders(token));
         toast.success(response?.data?.message || "Token verified successfully");
       } catch (error: any) {
         toast.error(error?.response?.data?.message || "Token verification failed");
@@ -39,14 +41,11 @@ console.log("<?><",token)
 
         // If login is successful, verify the token
         if (response.status === 200) {
-          localStorage.setItem("token",response?.data?.token)
+          localStorage.setItem("token", response?.data?.token);
           await verifyToken(); // Verify token after successful login
-navigate("/app/dashboard")
-toast.success(response?.data?.message || "Login successful");
-
+          navigate("/app/dashboard");
+          toast.success(response?.data?.message || "Login successful");
         }
-       
-        // Additional handling if needed after login
       } catch (error: any) {
         toast.error(error?.response?.data?.message || "Login failed");
       }
@@ -85,17 +84,24 @@ toast.success(response?.data?.message || "Login successful");
               </div>
 
               {/* Password */}
-              <div className='col-12'>
+              <div className='col-12 position-relative'>
                 <label htmlFor="password" className='mb-2'>Password</label>
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={passwordVisible ? 'text' : 'password'} // Toggle input type based on visibility
                   className={`form-control ${formik.touched.password && formik.errors.password ? 'is-invalid' : ''}`}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.password}
                 />
+                <span
+                  className="position-absolute"
+                  style={{ top: '65%', right: '15px', transform: 'translateY(-50%)', cursor: 'pointer' }}
+                  onClick={() => setPasswordVisible(!passwordVisible)}
+                >
+                  {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+                </span>
                 {formik.touched.password && formik.errors.password ? (
                   <div className="invalid-feedback">{formik.errors.password}</div>
                 ) : null}

@@ -6,7 +6,7 @@ import { Local } from "../environment/env";
 import { createAuthHeaders } from "../utils/token";
 import { toast } from "react-toastify";
 
-const InviteFriends = () => {
+const Invitefriends = () => {
   const [forms, setForms] = useState([{ id: Date.now(), values: {}, isValid: false }]);
 
   const initialValues = {
@@ -60,24 +60,60 @@ const InviteFriends = () => {
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "'Arial', sans-serif", backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
+    <div
+      style={{
+        padding: "20px",
+        fontFamily: "'Arial', sans-serif",
+        // backgroundColor: "#f5f5f5",
+        minHeight: "100vh",
+      }}
+    >
       {/* Header Section */}
       <div style={{ display: "flex", alignItems: "center", marginBottom: "15px" }}>
-        <span style={{ fontSize: "24px", marginRight: "10px", cursor: "pointer", color: "#333" }}>←</span>
+        <span
+          style={{
+            fontSize: "24px",
+            marginRight: "10px",
+            cursor: "pointer",
+            color: "#333",
+          }}
+        >
+          ←
+        </span>
         <h2 style={{ fontSize: "24px", margin: 0, color: "#333" }}>Friends</h2>
       </div>
-
+  
       <p style={{ fontSize: "16px", color: "#666", marginBottom: "20px" }}>
-        Invites some friends Jasmine, show them your Waves and let's see what they can do!
+        Invite some friends, Jasmine, show them your Waves, and let's see what
+        they can do!
       </p>
-
+  
       {/* Main White Container */}
-      <div style={{ backgroundColor: "white", borderRadius: "12px", padding: "24px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}>
+      <div
+        style={{
+          backgroundColor: "white",
+          borderRadius: "12px",
+          padding: "24px",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+        }}
+      >
         {/* Forms Container */}
         <div style={{ marginBottom: "20px" }}>
           {forms.map((form, index) => (
-            <div key={form.id} style={{ marginBottom: index === forms.length - 1 ? "0" : "24px" }}>
-              <h4 style={{ fontSize: "16px", fontWeight: "500", color: "#666", marginBottom: "16px" }}>Friend #{index + 1}</h4>
+            <div
+              key={form.id}
+              style={{ marginBottom: index === forms.length - 1 ? "0" : "24px" }}
+            >
+              <h4
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "500",
+                  color: "#666",
+                  marginBottom: "16px",
+                }}
+              >
+                Friend #{index + 1}
+              </h4>
               <Formik
                 initialValues={form.values}
                 validationSchema={validationSchema}
@@ -89,10 +125,33 @@ const InviteFriends = () => {
                 }}
               >
                 {({ handleSubmit, handleChange, handleBlur, values, errors }) => (
-                  <Form onBlur={() => handleFormChange(index, values, Object.keys(errors).length === 0)}>
-                    <div style={{ display: "flex", gap: "20px", marginBottom: "16px" }}>
+                  <Form
+                    onBlur={() =>
+                      handleFormChange(
+                        index,
+                        values,
+                        Object.keys(errors).length === 0
+                      )
+                    }
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "20px",
+                        marginBottom: "16px",
+                      }}
+                    >
                       <div style={{ flex: 1 }}>
-                        <label style={{ display: "block", marginBottom: "8px", color: "#555", fontSize: "14px" }}>Full Name</label>
+                        <label
+                          style={{
+                            display: "block",
+                            marginBottom: "8px",
+                            color: "#555",
+                            fontSize: "14px",
+                          }}
+                        >
+                          Full Name
+                        </label>
                         <Field
                           type="text"
                           name="fullname"
@@ -107,9 +166,18 @@ const InviteFriends = () => {
                         />
                         <ErrorMessage name="fullname" component="div" />
                       </div>
-
+  
                       <div style={{ flex: 1 }}>
-                        <label style={{ display: "block", marginBottom: "8px", color: "#555", fontSize: "14px" }}>Email Address</label>
+                        <label
+                          style={{
+                            display: "block",
+                            marginBottom: "8px",
+                            color: "#555",
+                            fontSize: "14px",
+                          }}
+                        >
+                          Email Address
+                        </label>
                         <Field
                           type="email"
                           name="emails"
@@ -125,9 +193,18 @@ const InviteFriends = () => {
                         <ErrorMessage name="emails" component="div" />
                       </div>
                     </div>
-
+  
                     <div>
-                      <label style={{ display: "block", marginBottom: "8px", color: "#555", fontSize: "14px" }}>Message</label>
+                      <label
+                        style={{
+                          display: "block",
+                          marginBottom: "8px",
+                          color: "#555",
+                          fontSize: "14px",
+                        }}
+                      >
+                        Message
+                      </label>
                       <Field
                         as="textarea"
                         name="message"
@@ -150,9 +227,18 @@ const InviteFriends = () => {
             </div>
           ))}
         </div>
-
+  
         {/* Buttons Container */}
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "16px", borderTop: "1px solid #eee", paddingTop: "20px", marginTop: "20px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "16px",
+            borderTop: "1px solid #eee",
+            paddingTop: "20px",
+            marginTop: "20px",
+          }}
+        >
           <button
             type="button"
             onClick={handleAddForm}
@@ -170,7 +256,7 @@ const InviteFriends = () => {
           >
             + Add More
           </button>
-
+  
           <button
             type="button"
             onClick={handleSubmitAll}
@@ -189,13 +275,10 @@ const InviteFriends = () => {
           </button>
         </div>
       </div>
-
-    
     </div>
   );
+  
 };
 
-export default InviteFriends;
+export default Invitefriends;
 
-
-InviteFriends

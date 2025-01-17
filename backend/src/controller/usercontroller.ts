@@ -108,7 +108,6 @@ export const login = async (req: any, res: any) => {
         subject,
         html,
       };
-  
       try {
         const info = await transporter.sendMail(mailOptions);
         console.log(`Email sent to ${to}: ${info.response}`);
@@ -116,14 +115,12 @@ export const login = async (req: any, res: any) => {
         console.error(`Error sending email to ${to}:`, error);
       }
     };
-  
     try {
       const promises = body.map(async (item: { fullname: string; emails: string; message: string }) => {
         const { emails: email } = item;
         const user = await checkEmailExists(email);
         let token: string;
         let invitationLink: string;
-  
         if (user) {
           // If email exists, include the user's ID in the token
           await Friends.create({ senderfriendId: senderId, email, receiverfriendId: user.id });
@@ -134,7 +131,7 @@ export const login = async (req: any, res: any) => {
           token = generateToken({ senderfriendId: senderId, email });
           invitationLink = `http://localhost:5173/?token=${token}`;
         }
-  
+        
         // Send the invitation email
         await sendEmail(
           email,
@@ -332,32 +329,50 @@ export const getUserDetails = async (req: any, res: any) => {
 
   
   
-export const createWave = async (req: any, res: any) => {
+  export const createWave = async (req: any, res: any) => {
     try {
-      const { image, video } = req?.files ;
-      const { text } = req?.body;
-      const{id}=req?.user
+      const  media  = req?.file; // Now accessing the file via media
+      const { text } = req.body; // Extract the text field from the body
+      const { id } = req.user; // Extract the user ID from the request (assumes user middleware)
+  
+      if (!media) {
+        return res.status(400).json({ error: "Media is required." });
+      }
+  
+      // Determine the field based on media type
+      let image = null;
+      let video = null;
+  
+      if (media.mimetype === "video/mp4") {
+        video = media.path; // Store the video path
+      } else if (media.mimetype === "image/jpeg") {
+        image = media.path; // Store the image path
+      } else {
+        return res.status(400).json({ error: "Only MP4 and JPG files are allowed." });
+      }
   
       // Save the wave data, including the paths of image and video
       const response = await Waves.create({
         text,
-        image: image ? image[0].path : null,  // Use the path of the first image file
-        video: video ? video[0].path : null,   // Use the path of the first video file
-        userId:id
+        userId: id,
+        image,
+        video,
       });
   
-      res.status(200).json({ message: 'Wave created successfully!', data: response });
+      res.status(200).json({ message: "Wave created successfully!", data: response });
     } catch (error) {
-      console.error('Error creating wave:', error);
-      res.status(500).json({ error: 'Failed to create wave.' });
+      console.error("Error creating wave:", error);
+      res.status(500).json({ error: "Failed to create wave." });
     }
   };
+  
+  
   
 
   
 export const changePassword = async (req: any, res: any) => {
     const { id } = req.user; // Extract user ID from authenticated user
-    const { prevPassword, newPassword } = req.body;
+    const { oldPassword, newPassword } = req.body;
   
     try {
       // Find the user by ID
@@ -368,7 +383,7 @@ export const changePassword = async (req: any, res: any) => {
       }
   
       // Compare the provided password with the stored password
-      const isMatch = await bcrypt.compare(prevPassword, user.password);
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
   
       if (!isMatch) {
         return res.status(400).json({ message: 'Previous password is incorrect.' });
@@ -412,7 +427,7 @@ export const updateUser = async (req: any, res: any) => {
       } = req.body;
   
       // Extract profile photo path if uploaded
-      const {profilePhoto}=req?.file
+      const {profilePhoto}=req?.media
   
       // Update user details in the database
       const [updatedRowCount] = await Users.update(

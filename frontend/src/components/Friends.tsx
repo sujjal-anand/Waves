@@ -35,7 +35,23 @@ const Friends = () => {
             <div className='ms-auto pt-1' onClick={()=>{
               navigate("/app/inviteFriends")
             }}  >
-             <button>hh</button>
+<button
+  style={{
+    backgroundColor: "#3E5677",
+    width: "205px",
+    height: "50px",
+    gap: "0px",
+    borderRadius: "10px", // Rounded from all corners
+    opacity: "0.9", // Set to 1 for full visibility
+    color: "#fff",
+    border: "none",
+    fontSize: "16px",
+    cursor: "pointer",
+  }}
+>
+  Invite Friend
+</button>
+
             </div>
           </div>
   
