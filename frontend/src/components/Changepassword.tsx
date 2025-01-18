@@ -208,7 +208,7 @@ const Changepassword = () => {
         <div style={{ width: "40%", display: "flex", justifyContent: "center" }}>
           <img
             src={changePasswordimage}
-            alt="Change Password"
+            alt=""
             style={{
               width: "80%", // Adjust image width inside the container
               height: "300px", // Keep the image aspect ratio intact

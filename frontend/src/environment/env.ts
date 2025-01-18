@@ -10,6 +10,8 @@ interface Config {
     INVITE_FRIEND:string;
     CREATE_WAVE:string;
     CHANGE_PASSWORD:string;
+    GET_FRIENDS_LIST:string;
+    ADD_USER_PREFERNCE:string
   }
   
   export const Local: Config = {
@@ -23,6 +25,8 @@ interface Config {
     INVITE_FRIEND:import.meta.env.VITE_INVITE_FRIEND,
     CREATE_WAVE:import.meta.env.VITE_CREATE_WAVE,
     CHANGE_PASSWORD:import.meta.env.VITE_CHANGE_PASSWORD,
+    GET_FRIENDS_LIST:import.meta.env.VITE_GET_FRIENDS_LIST,
+    ADD_USER_PREFERNCE:import.meta.env.VITE_ADD_USER_PREFERNCE,
     SECRET_KEY:import.meta.env.VITE_SECRET_KEY
   };
   

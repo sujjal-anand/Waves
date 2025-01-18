@@ -3,7 +3,7 @@ import { Router } from "express";
 import { upload } from "../middleware/multer";
 import { JWT } from "../middleware/token";
 import { validateUser } from "../middleware/Validate";
-import {  addFriendLogin, addFriendSignup, changePassword, createWave, getUserDetails, inviteFriend, latestWaves, login, signUp, updateUser } from "../controller/usercontroller";
+import {  addFriendLogin, addFriendSignup, addUserPreference, changePassword, createWave, getFriendsList, getUserDetails, inviteFriend, latestWaves, login, signUp, updateUser } from "../controller/usercontroller";
 const userRoutes = Router();
 
 userRoutes.post("/signUp",signUp)
@@ -20,6 +20,7 @@ userRoutes.post(
 );
   userRoutes.put("/changePassword",JWT,changePassword)
   userRoutes.put("/updateUser",upload.single("profilePhoto"),JWT,updateUser)
-  export default userRoutes;
-
   userRoutes.get("/latestWaves",latestWaves)
+  userRoutes.get("/getFriendsList",JWT,getFriendsList)
+  userRoutes.put("/addUserPreference",JWT,addUserPreference)
+  export default userRoutes;

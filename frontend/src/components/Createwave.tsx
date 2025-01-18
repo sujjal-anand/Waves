@@ -38,18 +38,18 @@ const navigate = useNavigate()
 
   const validationSchema = Yup.object({
     text: Yup.string()
-      .required('text is required')
-      .min(10, 'text must be at least 10 characters'),
+      .required('Text is required.')
+      .min(10, 'Text must be at least 10 characters long.'),
     media: Yup.mixed()
-      .required('A media file is required')
+      .required('A media file is required.')
       .test(
         'fileFormat',
-        'Unsupported format. Only JPEG and MP4 are allowed.',
+        'Invalid format. Only JPEG images and MP4 videos are supported.',
         (value: any) =>
-          value &&
-          ['image/jpeg', 'video/mp4'].includes(value.type)
+          value && ['image/jpeg', 'video/mp4'].includes(value.type)
       ),
   });
+  
 
 
   const handleSubmit = async (values: any) => {
@@ -279,14 +279,14 @@ return(
   
                   </div>
   
-                  <div className='ms-auto mt-3 me-4' >
-                    {(waveData.isactive) && (
-                      <p className='badge bg-success fw-medium rounded-4 px-3' >Active</p>
-                    )}
-                    {!(waveData.isactive) && (
-                      <p className='badge bg-danger fw-medium rounded-4 px-3' >In Active</p>
-                    )}
-                  </div>
+                  <div className='ms-auto mt-3 me-4'>
+  {waveData?.status === true ? (
+    <p className='badge bg-success fw-medium rounded-4 px-3'>Active</p>
+  ) : (
+    <p className='badge bg-danger fw-medium rounded-4 px-3'>In Active</p>
+  )}
+</div>
+
   
                 </div>
               </div>

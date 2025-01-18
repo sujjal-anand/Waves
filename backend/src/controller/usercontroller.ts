@@ -8,6 +8,8 @@ import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
 import Waves from "../models/Wave";
 import Comments from "../models/Comments";
+import Prefernce from "../models/Preference";
+import Preference from "../models/Preference";
 const jwtKey= Local.Secret_Key
 
 export const signUp = async (req: any, res: any) => {
@@ -526,6 +528,88 @@ export const addComment = async (req: any, res: any) => {
       return res.status(500).json({
         error: "An error occurred while adding the comment",
         details: error.message,
+      });
+    }
+  };
+
+  
+  export const getFriendsList = async (req: any, res: any) => {
+    try {
+      const { id } = req.user; // Extract user ID from request (assumes middleware sets `req.user`)
+  
+      // Fetch friends where the user is either sender or receiver
+      const friends = await Friends.findAll({
+        where: {
+          [Op.or]: [
+            { senderfriendId: id },
+            { receiverfriendId: id },
+          ],
+        },
+        include: [
+          {
+            model: Users,
+          },
+          {
+            model: Users,
+          },
+        ],
+      });
+  
+      // Format the response to return "opposite" friend details
+      const friendDetails = friends.map((friend) => {
+        if (friend.senderfriendId === id) {
+          return {
+            friend
+          };
+        } else {
+          return {
+         friend
+          };
+        }
+      });
+  
+      return res.status(200).json({ success: true, friends: friendDetails });
+    } catch (error) {
+      console.error("Error fetching friends list:", error);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+  };
+  
+
+  export const addUserPreference = async (req: any, res: any) => {
+    try {
+      // Extract the user ID from the request
+      const { id } = req.user;
+  
+      // Extract preference details from the request body
+      const preferenceDetails = req.body;
+  
+      // Check if a preference already exists for the given user
+      const existingPreference = await Preference.findOne({ where: { userId: id } });
+  
+      if (existingPreference) {
+        // If preference exists, update it
+        const updatedPreference = await existingPreference.update(preferenceDetails);
+        return res.status(200).json({
+          message: "Preference updated successfully",
+          data: updatedPreference,
+        });
+      } else {
+        // If preference does not exist, create a new one
+        const newPreference = await Preference.create({
+          ...preferenceDetails,
+          userId: id,
+        });
+        return res.status(201).json({
+          message: "Preference created successfully",
+          data: newPreference,
+        });
+      }
+    } catch (error) {
+      // Handle errors
+      console.error("Error adding/updating preference:", error);
+      return res.status(500).json({
+        message: "Internal server error",
       });
     }
   };

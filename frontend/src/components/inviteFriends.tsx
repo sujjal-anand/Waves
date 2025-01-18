@@ -5,10 +5,11 @@ import api from "../api/axiosInstance";
 import { Local } from "../environment/env";
 import { createAuthHeaders } from "../utils/token";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const Invitefriends = () => {
   const [forms, setForms] = useState([{ id: Date.now(), values: {}, isValid: false }]);
-
+const navigate = useNavigate()
   const initialValues = {
     fullname: "",
     emails: "",
@@ -76,6 +77,9 @@ const Invitefriends = () => {
             marginRight: "10px",
             cursor: "pointer",
             color: "#333",
+          }}
+          onClick={()=>{
+            navigate(-1)
           }}
         >
           ←

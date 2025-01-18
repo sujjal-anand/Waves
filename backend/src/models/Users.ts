@@ -3,6 +3,7 @@ import sequelize from "../config/database";
 import Wave from "./Wave";
 import Friends from "./Friends";
 import Comments from "./Comments";
+import Prefernce from "./Preference";
 
 class Users extends Model {
   public id!: number;
@@ -48,7 +49,6 @@ Users.init(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
         isEmail: true,
       },
@@ -100,7 +100,6 @@ Users.init(
     socialSecurity: {
       type: DataTypes.STRING,
       allowNull: true,
-      unique: true,
     },
     social: {
       type: DataTypes.STRING,
@@ -155,5 +154,9 @@ Comments.belongsTo(Users,  {foreignKey:"userId",as:'userComment', onDelete: 'CAS
 
 Wave.hasMany(Comments, { foreignKey: "waveId", as:'waveComment', onDelete: "CASCADE", onUpdate:"CASCADE" });
 Comments.belongsTo (Wave, { foreignKey: "waveId", as:'waveComment', onDelete: "CASCADE", onUpdate:"CASCADE" });
+
+Users.hasMany(Prefernce,{foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: "CASCADE"})
+Prefernce.belongsTo(Users,{foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: "CASCADE"})
+
 
 export default Users;

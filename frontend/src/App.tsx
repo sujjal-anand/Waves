@@ -12,6 +12,7 @@ import Friends from './components/Friends';
 import Createwave from './components/Createwave';
 import Invitefriends from './components/Invitefriends';
 import Changepassword from './components/Changepassword';
+import Preferences from './components/Preferences';
 
 const  App:react.FC = () => {
   return (
@@ -27,6 +28,7 @@ const  App:react.FC = () => {
 <Route path="inviteFriends" element={<Invitefriends/>}/>
 <Route path="createWave" element={<Createwave/>}/>
 <Route path="changePassword" element={<Changepassword/>}/>
+<Route path="preferences" element={<Preferences/>}/>
         </Route>
 </Routes>
 </BrowserRouter>
