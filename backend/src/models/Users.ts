@@ -86,7 +86,7 @@ Users.init(
       allowNull: true,
     },
     dob: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: true,
     },
     gender: {

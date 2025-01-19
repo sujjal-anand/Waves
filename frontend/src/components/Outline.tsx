@@ -2,8 +2,29 @@ import React, {useEffect} from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import "../styling/sidebar2.css"; // Optional for additional styles
+import api from "../api/axiosInstance";
+import { Local } from "../environment/env";
+import { createAuthHeaders } from "../utils/token";
 
-const Outline: React.FC = () => {
+
+
+const fetchUserDetail = async () => {
+  const token = localStorage.getItem("token")
+  if (token) {
+    const response = await api.get(`${Local.GET_USER_DETAILS}`, createAuthHeaders(token));
+    if (response.status !== 200) {
+      throw new Error('Failed to fetch user details');
+
+    }
+    return response.data;
+
+  }
+
+};
+
+
+
+const Outline= () => {
   
   const navigate = useNavigate();
   useEffect(()=>{

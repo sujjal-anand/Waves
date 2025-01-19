@@ -5,11 +5,12 @@ import Friends from "../models/Friends";
 import Users from "../models/Users";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import Waves from "../models/Wave";
 import Comments from "../models/Comments";
 import Prefernce from "../models/Preference";
 import Preference from "../models/Preference";
+import { preferences } from "joi";
 const jwtKey= Local.Secret_Key
 
 export const signUp = async (req: any, res: any) => {
@@ -92,6 +93,8 @@ export const login = async (req: any, res: any) => {
     console.log(req?.body); // Log the incoming request body
     const { body } = req; // Accept array of objects with fullname, emails, and message
     const senderId = req?.user?.id;
+
+    
   
     const checkEmailExists = async (email: string) => {
       // Find the user by email
@@ -314,10 +317,14 @@ export const getUserDetails = async (req: any, res: any) => {
         },
       });
   
+      const preference = await Preference.findOne({where:{userId:id}})
+
       // Return user details, friends, and waves
       return res.status(200).json({
         user,
         friends: friendDetails,
+        preference:preference,
+        // preferences:{preference},
         waves: {
           userWaves,
           friendWaves,
@@ -428,8 +435,7 @@ export const updateUser = async (req: any, res: any) => {
         kids
       } = req.body;
   
-      // Extract profile photo path if uploaded
-      const {profilePhoto}=req?.media
+      
   
       // Update user details in the database
       const [updatedRowCount] = await Users.update(
@@ -449,7 +455,6 @@ export const updateUser = async (req: any, res: any) => {
           socialSecurity,
           social,
           kids,
-          profilePhoto: profilePhoto ? profilePhoto[0].path : null,
         },
         {
           where: { id },
@@ -468,18 +473,90 @@ export const updateUser = async (req: any, res: any) => {
     }
   };
  
-  
 
-export const latestWaves = async (req: any, res: any) => {
+
+  export const updateUserPicture = async (req: any, res: any) => {
     try {
+      // Extract user ID from request (e.g., req.params or req.body depending on your logic)
+      const {id} = req.user
+      if (!id) {
+        return res.status(400).json({ error: "User ID is required" });
+      }
+  
+      // Extract uploaded file (via middleware like multer)
+      const profilePhoto = req?.file?.path;
+  
+      if (!profilePhoto) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+  
+      // Update user record with the new profile picture path
+      const updatedUser = await Users.update(
+        { profilePhoto: profilePhoto }, // Assuming `path` contains the file's storage location
+        { where: { id: id } }
+      );
+  
+      if (updatedUser[0] === 0) {
+        return res.status(404).json({ error: "User not found or not updated" });
+      }
+  
+      return res.status(200).json({ message: "Profile picture updated successfully" });
+    } catch (error) {
+      console.error("Error updating profile picture:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+  };
+
+
+  export const latestWaves = async (req: any, res: any) => {
+    const { id } = req?.user; // Extract user ID from the authenticated request
+  
+    try {
+      // Step 1: Fetch the IDs of the user's friends (both senderfriendId and receiverfriendId)
+      const friends = await Friends.findAll({
+        where: {
+          [Op.or]: [
+            { senderfriendId: id }, // User is the sender
+            { receiverfriendId: id }, // User is the receiver
+          ],
+          status: true, // Only include accepted friendships
+        },
+        attributes: [
+          [Sequelize.col("senderfriendId"), "friendId"], // Get the sender's friendId
+          [Sequelize.col("receiverfriendId"), "friendId"], // Get the receiver's friendId
+        ],
+      });
+  
+      // Extract all the friend IDs from the result
+      const friendIds = friends.map((friend: any) =>
+        friend.get("friendId")
+      ).filter((friendId: number) => friendId !== id); // Exclude the authenticated user's own ID
+  
+      if (friendIds.length === 0) {
+        return res.status(404).json({
+          message: "No friends found",
+          data: [],
+        });
+      }
+  
+      // Step 2: Fetch waves from the user's friends using the extracted friend IDs
       const waves = await Waves.findAll({
-        limit: 6,
-        order: [["createdAt", "DESC"]],
+        where: {
+          userId: {
+            [Op.in]: friendIds, // Only fetch waves from friends
+          },
+        },
+        limit: 6, // Fetch only the latest 6 waves
+        order: [["createdAt", "DESC"]], // Order by latest created
         include: [
           {
             model: Users, // Associated Users model
-            as:"userWave",
-            attributes: ["id", "firstName", "lastName", "email", "profilePhoto"], // Select specific fields
+            as: "userWave", // Alias for the user associated with the wave
+          },
+          {
+            model: Comments, // Include associated Comments model
+            as: "waveComment", // Alias for comments association
           },
         ],
       });
@@ -496,6 +573,10 @@ export const latestWaves = async (req: any, res: any) => {
       });
     }
   };
+  
+  
+  
+  
 
  
   
@@ -615,4 +696,53 @@ export const addComment = async (req: any, res: any) => {
     }
   };
   
+  export const acceptedFriend = async (req: any, res: any) => {
+    const { id } = req.user; // Extract user ID from the authenticated request
+  
+    try {
+      // Fetch accepted friends where user is either sender or receiver
+      const friends = await Friends.findAll({
+        where: {
+          [Op.or]: [
+            { senderfriendId: id }, // User is the sender
+            { receiverfriendId: id }, // User is the receiver
+          ],
+          status: true, // Only include accepted friendships
+        },
+      });
+  
+      if (!friends.length) {
+        return res.status(404).json({
+          message: "No accepted friends found",
+          data: [],
+        });
+      }
+  
+      // Manually map to get the opposite friend based on the relationship
+      const acceptedFriends = await Promise.all(
+        friends.map(async (friend: any) => {
+          const oppositeFriendId =
+            friend.senderfriendId === id ? friend.receiverfriendId : friend.senderfriendId;
+  
+          // Fetch the user details of the opposite friend (sender or receiver)
+          const oppositeFriend = await Users.findOne({
+            where: { id: oppositeFriendId },
+          });
+  
+          return oppositeFriend;
+        })
+      );
+  
+      return res.status(200).json({
+        message: "Accepted friends fetched successfully",
+        data: acceptedFriends,
+      });
+    } catch (error) {
+      console.error("Error fetching accepted friends:", error);
+      return res.status(500).json({
+        message: "An error occurred while fetching accepted friends",
+        error,
+      });
+    }
+  };
   

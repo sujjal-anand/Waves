@@ -9,7 +9,9 @@ import { useNavigate } from "react-router-dom";
 
 const Invitefriends = () => {
   const [forms, setForms] = useState([{ id: Date.now(), values: {}, isValid: false }]);
-const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState(false); // State to track loading
+  const navigate = useNavigate();
+
   const initialValues = {
     fullname: "",
     emails: "",
@@ -45,15 +47,20 @@ const navigate = useNavigate()
     const allData = forms.map((form) => form.values);
 
     if (token) {
+      setIsLoading(true); // Set loading to true when submitting
+
       try {
         const response = await api.post(
           `${Local.INVITE_FRIEND}`,
           allData,
           createAuthHeaders(token)
         );
-        console.log("Response:", response.data);
+        toast.success("Friends invited");
+        navigate("/app/dashboard")
       } catch (error: any) {
-        console.error("Error:", error.response?.data || error.message);
+        toast.error("Error:", error.response?.data || error.message);
+      } finally {
+        setIsLoading(false); // Set loading to false after submission
       }
     } else {
       console.error("Token is missing. Please log in.");
@@ -65,7 +72,6 @@ const navigate = useNavigate()
       style={{
         padding: "20px",
         fontFamily: "'Arial', sans-serif",
-        // backgroundColor: "#f5f5f5",
         minHeight: "100vh",
       }}
     >
@@ -78,20 +84,20 @@ const navigate = useNavigate()
             cursor: "pointer",
             color: "#333",
           }}
-          onClick={()=>{
-            navigate(-1)
+          onClick={() => {
+            navigate(-1);
           }}
         >
           ←
         </span>
         <h2 style={{ fontSize: "24px", margin: 0, color: "#333" }}>Friends</h2>
       </div>
-  
+
       <p style={{ fontSize: "16px", color: "#666", marginBottom: "20px" }}>
         Invite some friends, Jasmine, show them your Waves, and let's see what
         they can do!
       </p>
-  
+
       {/* Main White Container */}
       <div
         style={{
@@ -170,7 +176,7 @@ const navigate = useNavigate()
                         />
                         <ErrorMessage name="fullname" component="div" />
                       </div>
-  
+
                       <div style={{ flex: 1 }}>
                         <label
                           style={{
@@ -197,7 +203,7 @@ const navigate = useNavigate()
                         <ErrorMessage name="emails" component="div" />
                       </div>
                     </div>
-  
+
                     <div>
                       <label
                         style={{
@@ -231,7 +237,7 @@ const navigate = useNavigate()
             </div>
           ))}
         </div>
-  
+
         {/* Buttons Container */}
         <div
           style={{
@@ -260,7 +266,7 @@ const navigate = useNavigate()
           >
             + Add More
           </button>
-  
+
           <button
             type="button"
             onClick={handleSubmitAll}
@@ -273,16 +279,30 @@ const navigate = useNavigate()
               fontSize: "16px",
               cursor: "pointer",
               fontWeight: "500",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            Invite Friends
+            {isLoading ? (
+              <div
+                style={{
+                  border: "4px solid #f3f3f3", // Light gray
+                  borderTop: "4px solid #3498db", // Blue
+                  borderRadius: "50%",
+                  width: "24px",
+                  height: "24px",
+                  animation: "spin 2s linear infinite",
+                }}
+              ></div>
+            ) : (
+              "Invite Friends"
+            )}
           </button>
         </div>
       </div>
     </div>
   );
-  
 };
 
 export default Invitefriends;
-

@@ -7,36 +7,55 @@ import api from '../api/axiosInstance';
 import { createAuthHeaders } from '../utils/token';
 import { toast } from 'react-toastify';
 import CryptoJS from 'crypto-js';
+import { useQuery } from '@tanstack/react-query';
 
 const Preferences = () => {
+  const fetchUserDetail = async () => {
+  
+    const token= localStorage.getItem("token")
+    if(token){
+        const response = await api.get(`${Local.GET_USER_DETAILS}`, createAuthHeaders(token));
+        if (response.status !== 200) {
+        throw new Error('Failed to fetch user details');
+      }
+      return response.data;
+    }
+  };
+
+  const { data:userDetail } = useQuery({
+    queryKey: ['userDetail'],
+    queryFn: fetchUserDetail,
+  });
+  const initialValues = {
+    language: userDetail?.preference?.language || "", 
+    breakfast: userDetail?.preference?.breakfast || "00:00", 
+    lunch: userDetail?.preference?.lunch || "00:00", 
+    dinner: userDetail?.preference?.dinner || "00:00", 
+    wakeTime: userDetail?.preference?.wakeTime || "00:00", 
+    bedTime: userDetail?.preference?.bedTime || "00:00", 
+    weightIn: userDetail?.preference?.weightIn || "kg", // Default to 'kg' or 'lb'
+    weight: userDetail?.preference?.weight || "",
+    heightIn: userDetail?.preference?.heightIn || "cm", // Default to 'cm' or 'ft/in'
+    height: userDetail?.preference?.height || "",
+    bloodGlucoseIn: userDetail?.preference?.bloodGlucoseIn || "mg/dL", // Default to 'mg/dL' or 'mmol/L'
+    bloodGlucose: userDetail?.preference?.bloodGlucose || "",
+    cholesterolIn: userDetail?.preference?.cholesterolIn || "mg/dL", // Default to 'mg/dL' or 'mmol/L'
+    cholesterol: userDetail?.preference?.cholesterol || "",
+    bloodPressureIn: userDetail?.preference?.bloodPressureIn || "mmHg", // Default to 'mmHg'
+    bloodPressure: userDetail?.preference?.bloodPressure || "",
+    distanceIn: userDetail?.preference?.distanceIn || "km", // Default to 'km' or 'miles'
+    distance: userDetail?.preference?.distance || "",
+    systemEmail: userDetail?.preference?.systemEmail || false,
+    sms: userDetail?.preference?.sms || false,
+    post: userDetail?.preference?.post || false,
+    memberServicesEmail: userDetail?.preference?.memberServicesEmail || false,
+    phoneCall: userDetail?.preference?.phoneCall || false,
+  };
+  
 const token = localStorage.getItem("token")
 
   const navigate = useNavigate()
-  const initialValues = {
-    language: "",
-    breakfast: "00:00",
-    lunch: "00:00",
-    dinner: "00:00",
-    wakeTime: "00:00",
-    bedTime: "00:00",
-    weightIn: "kg", // Default to 'kg' or 'lb'
-    weight: "",
-    heightIn: "cm", // Default to 'cm' or 'ft/in'
-    height: "",
-    bloodGlucoseIn: "mg/dL", // Default to 'mg/dL' or 'mmol/L'
-    bloodGlucose: "",
-    cholesterolIn: "mg/dL", // Default to 'mg/dL' or 'mmol/L'
-    cholesterol: "",
-    bloodPressureIn: "mmHg", // Default to 'mmHg'
-    bloodPressure: "",
-    distanceIn: "km", // Default to 'km' or 'miles'
-    distance: "",
-    systemEmail: false,
-    sms: false,
-    post: false,
-    memberServicesEmail: false,
-    phoneCall: false,
-  };
+  
 
   const validationSchema = Yup.object({
     language: Yup.string().required("Language is required"),
@@ -114,7 +133,9 @@ const token = localStorage.getItem("token")
   
 
   return (
+    
     <div className="container p-4">
+      
       <p
         className="h5 pb-3 d-flex bg-secondary-subtle"
         onClick={() => navigate('/app/dashboard')}
