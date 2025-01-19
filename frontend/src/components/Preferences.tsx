@@ -1,4 +1,3 @@
-import React, { useState } from 'react'
 import { FaRegClock } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -7,6 +6,7 @@ import { Local } from '../environment/env';
 import api from '../api/axiosInstance';
 import { createAuthHeaders } from '../utils/token';
 import { toast } from 'react-toastify';
+import CryptoJS from 'crypto-js';
 
 const Preferences = () => {
 const token = localStorage.getItem("token")
@@ -96,6 +96,7 @@ const token = localStorage.getItem("token")
   
         if (response.status === 200 || response.status === 201) {
           toast.success("Preference saved successfully:", response.data);
+          navigate("/app/dashboard")
           // Handle success response (e.g., show a success message or redirect)
         } else {
           toast.error("Unexpected response status:");

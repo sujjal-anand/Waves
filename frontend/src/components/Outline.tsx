@@ -67,7 +67,7 @@ const Outline: React.FC = () => {
           </NavLink>
 
           <NavLink
-            to="/app/profile"
+            to="/app/myProfile"
             className={({ isActive }) =>
               `nav-link text-white py-2 d-flex mb-2 ${isActive ? "active-link" : ""}`
             }

@@ -29,6 +29,7 @@ const  App:react.FC = () => {
 <Route path="createWave" element={<Createwave/>}/>
 <Route path="changePassword" element={<Changepassword/>}/>
 <Route path="preferences" element={<Preferences/>}/>
+<Route path="myProfile" element={<Myprofile/>}/>
         </Route>
 </Routes>
 </BrowserRouter>

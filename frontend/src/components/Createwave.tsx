@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom';
 import '../styling/createwave.css';
 import { toast } from 'react-toastify';
 
+
+
 const fetchUserDetail = async () => {
   const token= localStorage.getItem("token")
   if(token){
@@ -143,7 +145,7 @@ return(
           src={`${Local.BASE_URL}${data?.user?.profilePhoto}`}
           alt="User Profile"
           className="rounded-circle border"
-          style={{ width: "100px", height: "100px" }}
+          style={{ width: "111px", height: "106px" }}
           data-bs-toggle="dropdown"
           aria-expanded="false"
         />

@@ -580,6 +580,7 @@ export const addComment = async (req: any, res: any) => {
     try {
       // Extract the user ID from the request
       const { id } = req.user;
+      console.log("<><>",req.body)
   
       // Extract preference details from the request body
       const preferenceDetails = req.body;
