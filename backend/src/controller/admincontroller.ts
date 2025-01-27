@@ -14,7 +14,7 @@ const jwtKey = Local.Secret_Key;
 import fs from "fs";
 import { format, parse } from "fast-csv";
 import path from "path";
-
+import PDFDocument from "pdfkit";
 import Admin from "../models/Admin"; // Replace with your actual Admin model import
 
 export const adminSignUp = async (req: any, res: any) => {
@@ -430,7 +430,7 @@ export const deleteWave = async (req: any, res: any) => {
   }
 };
 
-export const generateCSV = async (req: any, res: any) => {
+export const generateUsersCSV = async (req: any, res: any) => {
   try {
     // Get the search query from the request
     const { search } = req?.query;
@@ -501,5 +501,73 @@ export const generateCSV = async (req: any, res: any) => {
     // Catch and handle any other unexpected errors
     console.error("Unexpected error:", error);
     res.status(500).json({ message: "Unexpected error occurred", error });
+  }
+};
+
+export const generateUsersPDF = async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+
+    // Fetch user from the database
+    const user = await Users.findOne({ where: { id } });
+
+    // If user is not found, return an error response
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Create a PDF document
+    const doc = new PDFDocument();
+    const filePath = path.join(__dirname, "..", "..", "uploads", "user.pdf");
+    const writeStream = fs.createWriteStream(filePath);
+
+    // Pipe the PDF output to the write stream
+    doc.pipe(writeStream);
+
+    // Add user details to the PDF
+    doc.fontSize(12).text(`User Information:`, 80, 80);
+    doc.text(`ID: ${user.id}`, 80, 110);
+    doc.text(`Name: ${user.firstName} ${user.lastName}`, 80, 130);
+    doc.text(`Email: ${user.email}`, 80, 150);
+    doc.text(`Phone: ${user.phoneNo}`, 80, 170);
+
+    // Handle the profile photo
+    const imagePath = path.join(
+      __dirname,
+      "..",
+      "..",
+      "uploads",
+      user.profilePhoto
+    ); // Ensure the correct path
+
+    if (fs.existsSync(imagePath)) {
+      doc.image(imagePath, 80, 200, { width: 150 }); // Add the image
+    } else {
+      doc.text("Profile photo not found.", 80, 200);
+    }
+
+    // Finalize the PDF
+    doc.end();
+
+    // Send the file as a download once the document is created
+    writeStream.on("finish", () => {
+      res.download(filePath, "user.pdf", (err: any) => {
+        if (err) {
+          console.error("Error sending the file:", err);
+          return res
+            .status(500)
+            .json({ message: "Error downloading the file" });
+        }
+      });
+    });
+
+    // Handle errors during file writing
+    writeStream.on("error", (err) => {
+      console.error("Error creating the PDF file:", err);
+      return res.status(500).json({ message: "Error creating the PDF file" });
+    });
+  } catch (error) {
+    console.error("Error generating the PDF:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };

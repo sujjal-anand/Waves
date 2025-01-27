@@ -30,7 +30,8 @@ import {
   deleteWave,
   editUser,
   editWave,
-  generateCSV,
+  generateUsersCSV,
+  generateUsersPDF,
   getAllData,
   getAllUsers,
   getAllWaves,
@@ -77,5 +78,6 @@ userRoutes.delete("/deleteComment/:id", deleteComment);
 
 userRoutes.get("/getWaveCommentsById/:id", getWaveCommentsById);
 userRoutes.put("/editComment/:id", editWaveComment);
-userRoutes.get("/csv", generateCSV);
+userRoutes.get("/csv", generateUsersCSV);
+userRoutes.get("/pdf/:id", generateUsersPDF);
 export default userRoutes;

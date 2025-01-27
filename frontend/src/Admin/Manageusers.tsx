@@ -52,45 +52,59 @@ const ManageUsers = () => {
   };
 
   // Function to download CSV
-  const handleDownloadCSV = () => {
-    if (data?.users) {
-      const csv = Papa.unparse(data.users, {
-        header: true, // Include headers in the CSV
-      });
+  const handleDownloadCSV = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5001/users/csv?search=${search}`,
+        {
+          responseType: "blob", // Ensures the server responds with a Blob (binary data)
+        }
+      );
 
-      // Create a Blob and trigger download
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      // Create a temporary link element to trigger the download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "users.csv"; // File name
+      link.href = url;
+
+      // Set the desired file name for the download
+      link.setAttribute("download", "generated.csv");
+
+      // Append the link to the body and simulate a click to trigger the download
+      document.body.appendChild(link);
       link.click();
-      URL.revokeObjectURL(link.href);
-    } else {
-      toast.error("No user data available to download.");
+
+      // Clean up by removing the link element from the DOM
+      document.body.removeChild(link);
+
+      // Revoke the object URL to free up resources
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading file:", error);
     }
   };
 
   // Function to download PDF
-  const handleDownloadPDF = () => {
-    const doc = new jsPDF();
+  const handleDownloadPDF = async (id: any) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5001/users/pdf/${id}`,
+        {
+          responseType: "blob",
+        }
+      );
 
-    // Add user data to PDF
-    doc.setFontSize(16);
-    doc.text("User Details", 10, 10);
-    doc.setFontSize(12);
-    doc.text(`Full Name: ${userData.firstName} ${userData.lastName}`, 10, 20);
-    doc.text(`Email: ${userData.email}`, 10, 30);
-    doc.text(`Phone No: ${userData.phoneNo}`, 10, 40);
-    doc.text(`Address: ${userData.addressOne}`, 10, 50);
-    doc.text(`City: ${userData.city}`, 10, 60);
-    doc.text(`Zip Code: ${userData.zipCode}`, 10, 70);
-    doc.text(`Date of Birth: ${userData.dob}`, 10, 80);
-    doc.text(`Gender: ${userData.gender}`, 10, 90);
-    doc.text(`Social Security: ${userData.socialSecurity}`, 10, 100);
-    doc.text(`Kids: ${userData.kids}`, 10, 110);
+      // Create a Blob URL
+      const blob = new Blob([response.data], { type: "application/pdf" });
 
-    // Save the PDF
-    doc.save("user_data.pdf");
+      // Trigger the download using window.location
+      const downloadUrl = URL.createObjectURL(blob);
+      window.location.href = downloadUrl;
+
+      // Clean up the URL object
+      URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+    }
   };
 
   if (isLoading) {
@@ -170,7 +184,7 @@ const ManageUsers = () => {
             <button className="btn btn-primary" onClick={handleDownloadCSV}>
               <Download className="me-2" /> Download CSV
             </button>
-            <button
+            {/* <button
               className="btn"
               onClick={async () => {
                 try {
@@ -206,7 +220,7 @@ const ManageUsers = () => {
               }}
             >
               Download CSV2
-            </button>
+            </button> */}
           </div>
 
           {/* Users Table */}
@@ -437,7 +451,9 @@ const ManageUsers = () => {
                 <button
                   type="button"
                   className="btn btn-primary"
-                  onClick={handleDownloadPDF}
+                  onClick={() => {
+                    handleDownloadPDF(userData?.id);
+                  }}
                 >
                   <Download className="me-2" /> Download PDF
                 </button>
