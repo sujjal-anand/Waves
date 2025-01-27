@@ -6,6 +6,7 @@ import api from "../api/axiosInstance";
 import { Local } from "../environment/env";
 import { createAuthHeaders } from "../utils/token";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 // Register the necessary chart components for Pie chart
 ChartJS.register(ArcElement, Tooltip, Legend);

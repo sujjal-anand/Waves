@@ -11,6 +11,7 @@ import { TfiReload } from "react-icons/tfi";
 import Papa from "papaparse"; // Import papaparse for CSV conversion
 import { jsPDF } from "jspdf"; // Import jsPDF for PDF generation
 import { queryClient } from "../main";
+import axios from "axios";
 
 const ManageUsers = () => {
   const navigate = useNavigate();
@@ -168,6 +169,43 @@ const ManageUsers = () => {
           <div className="mb-3">
             <button className="btn btn-primary" onClick={handleDownloadCSV}>
               <Download className="me-2" /> Download CSV
+            </button>
+            <button
+              className="btn"
+              onClick={async () => {
+                try {
+                  const response = await axios.get(
+                    `http://localhost:5001/users/csv?search=${search}`,
+                    {
+                      responseType: "blob", // Ensures the server responds with a Blob (binary data)
+                    }
+                  );
+
+                  // Create a temporary link element to trigger the download
+                  const url = window.URL.createObjectURL(
+                    new Blob([response.data])
+                  );
+                  const link = document.createElement("a");
+                  link.href = url;
+
+                  // Set the desired file name for the download
+                  link.setAttribute("download", "generated.csv");
+
+                  // Append the link to the body and simulate a click to trigger the download
+                  document.body.appendChild(link);
+                  link.click();
+
+                  // Clean up by removing the link element from the DOM
+                  document.body.removeChild(link);
+
+                  // Revoke the object URL to free up resources
+                  window.URL.revokeObjectURL(url);
+                } catch (error) {
+                  console.error("Error downloading file:", error);
+                }
+              }}
+            >
+              Download CSV2
             </button>
           </div>
 

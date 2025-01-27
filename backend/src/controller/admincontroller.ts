@@ -11,6 +11,9 @@ import Prefernce from "../models/Preference";
 import Preference from "../models/Preference";
 import { date, preferences } from "joi";
 const jwtKey = Local.Secret_Key;
+import fs from "fs";
+import { format, parse } from "fast-csv";
+import path from "path";
 
 import Admin from "../models/Admin"; // Replace with your actual Admin model import
 
@@ -424,5 +427,79 @@ export const deleteWave = async (req: any, res: any) => {
   } catch (error) {
     console.error("Error deleting user:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const generateCSV = async (req: any, res: any) => {
+  try {
+    // Get the search query from the request
+    const { search } = req?.query;
+
+    // Query the database with an optional search filter
+    const users = await Users.findAll({
+      where: search
+        ? {
+            [Op.or]: [
+              { firstName: { [Op.like]: `%${search}%` } },
+              { lastName: { [Op.like]: `%${search}%` } },
+            ],
+          }
+        : {},
+    });
+
+    // Define the file path where the CSV file will be saved
+    const filePath = path.join(
+      __dirname,
+      "..",
+      "..",
+      "uploads",
+      "generated.csv"
+    );
+
+    // Create a write stream to save the CSV file
+    const writeStream = fs.createWriteStream(filePath);
+
+    // Create a fast-csv formatter with headers enabled
+    const csvStream = format({ headers: true });
+
+    // Pipe the CSV stream to the write stream
+    csvStream.pipe(writeStream);
+
+    // Write data to the CSV stream
+    users.forEach((user: any) => {
+      // Map user data to a specific format for the CSV (e.g., firstName, lastName, email)
+      csvStream.write({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        gender: user.gender,
+      });
+    });
+
+    // End the CSV stream after all data is written
+    csvStream.end();
+
+    // Once the file has been written, send it as a download
+    writeStream.on("finish", () => {
+      res.download(filePath, "generated.csv", (err: any) => {
+        if (err) {
+          console.error("Error sending file:", err);
+          return res.status(500).send("Error sending file");
+        } else {
+          console.log("File sent successfully");
+        }
+      });
+    });
+
+    // Handle errors with the write stream
+    writeStream.on("error", (error) => {
+      console.error("Error writing CSV file:", error);
+      res.status(500).json({ message: "Error creating CSV file", error });
+    });
+  } catch (error) {
+    // Catch and handle any other unexpected errors
+    console.error("Unexpected error:", error);
+    res.status(500).json({ message: "Unexpected error occurred", error });
   }
 };
