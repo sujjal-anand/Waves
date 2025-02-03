@@ -11,6 +11,7 @@ import Comments from "../models/Comments";
 import Prefernce from "../models/Preference";
 import Preference from "../models/Preference";
 import { preferences } from "joi";
+import { stat } from "fs";
 const jwtKey = Local.Secret_Key;
 
 export const signUp = async (req: any, res: any) => {
@@ -588,15 +589,15 @@ export const latestWaves = async (req: any, res: any) => {
   const { id } = req?.user; // Extract user ID from the authenticated request
 
   try {
-    // Step 1: Fetch the latest 6 waves, excluding the waves created by the authenticated user
     const waves = await Waves.findAll({
       where: {
         userId: {
-          [Op.ne]: id, // Exclude waves created by the authenticated user
+          [Op.ne]: id, // Exclude the user's own waves
         },
+        status: true, // Fetch waves with status true
       },
       limit: 6, // Fetch only the latest 6 waves
-      order: [["createdAt", "DESC"]], // Order by latest created
+      order: [["createdAt", "DESC"]], // Order by the latest created
       include: [
         {
           model: Users, // Associated Users model for user details
@@ -627,6 +628,7 @@ export const latestWaves = async (req: any, res: any) => {
     });
   }
 };
+
 
 export const addComment = async (req: any, res: any) => {
   try {
@@ -885,7 +887,7 @@ export const getWaveCommentsById = async (req: any, res: any) => {
     const { id } = req.params; // Extract the ID from the request parameters
 
     if (!id) {
-      return res.status(400).json({ error: "ID parameter is required" });
+      return res.status(200).json({ error: "ID parameter is required" });
     }
 
     // Fetch comments with the given ID, including user details

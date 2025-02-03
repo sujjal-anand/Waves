@@ -24,7 +24,7 @@ const ManageWaves = () => {
     if (adminToken) {
       const response = await api.get(`${Local.GET_ALL_WAVES}?search=${search}`);
       if (response.status !== 200) {
-        throw new Error("Failed to fetch user details");
+        throw new Error("Failed to fetch waves details");
       }
       return response.data;
     }
@@ -40,7 +40,7 @@ const ManageWaves = () => {
   const handleOpenModal = async (id: any) => {
     const response = await api.get(`${Local.GET_WAVE}/${id}`);
     if (response.status !== 200) {
-      throw new Error("Failed to fetch user details");
+      throw new Error("Failed to fetch wave details");
     }
     setIsModalOpen(true);
     setWaveData(response?.data);
@@ -156,13 +156,14 @@ const ManageWaves = () => {
                                   onChange={async (
                                     e: React.ChangeEvent<HTMLInputElement>
                                   ) => {
-                                    const isChecked = e.target.checked; // Get the checkbox state
-                                    setFieldValue("status", isChecked); // Update Formik's state
+                                    const isChecked = e.target.checked; 
+                                    setFieldValue("status", isChecked); 
 
                                     const adminToken =
                                       localStorage.getItem("adminToken");
                                     if (adminToken) {
                                       try {
+                                        console.log("first",isChecked)
                                         const response = await api.put(
                                           `${Local.EDIT_WAVE}/${user.id}`,
                                           { status: isChecked },
@@ -170,7 +171,7 @@ const ManageWaves = () => {
                                         );
                                         console.log("Response:", response.data);
                                         toast.success(
-                                          "Profile Updated Successfully"
+                                          "wave Updated Successfully"
                                         );
                                       } catch (error: any) {
                                         console.error(

@@ -79,7 +79,7 @@ const AdminDashboard = () => {
       {/* Logout Button */}
       <button
         onClick={handleLogout}
-        className="btn btn-dark rounded-3 position-fixed top-0 end-0 m-3 d-flex align-items-center justify-content-center"
+        className="btn btn-dark rounded-3 position-absolute top-0 end-0 m-3 d-flex align-items-center justify-content-center"
         style={{
           width: "56px",
           height: "56px",

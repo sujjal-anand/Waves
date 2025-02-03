@@ -280,7 +280,7 @@ export const editUser = async (req: any, res: any) => {
 
 export const editWave = async (req: any, res: any) => {
   const { id } = req.params;
-  const { text } = req.body; // Extract text from the request body
+  const { text, status } = req.body; // Extract text and status from the request body
   const media = req.file; // Extract the uploaded file from req.file
 
   try {
@@ -293,6 +293,11 @@ export const editWave = async (req: any, res: any) => {
     // Update the text field if provided
     if (text) {
       await wave.update({ text });
+    }
+
+    // Update the status field if provided
+    if (status !== undefined) { // Check if status is provided
+      await wave.update({ status });
     }
 
     // Handle media file upload
@@ -327,6 +332,7 @@ export const editWave = async (req: any, res: any) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const deleteUser = async (req: any, res: any) => {
   const { id } = req.params;

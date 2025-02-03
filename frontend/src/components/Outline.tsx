@@ -29,6 +29,9 @@ const Outline = () => {
       navigate("/login");
     }
   }, []);
+// window.addEventListener('beforeunload', () => {
+//   localStorage.clear();
+// });
 
   const signOut = () => {
     localStorage.clear();
